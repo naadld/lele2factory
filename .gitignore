@@ -1,0 +1,44 @@
+# Zero-Leak Vault Security Rule for naadld/lele2factory
+
+# Environment & Credentials
+.env
+*.env
+*.pem
+*.key
+*.token
+credentials/
+credentials.json
+service_account.json
+user_oauth2.json
+bot_token.txt
+
+# Cloud profiles & Cache
+.cloud-profiles/
+.hermes/
+.cloud-profiles
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+.pytest_cache/
+
+# Audio / Video Artifacts & Temp outputs
+output/
+tmp/
+*.mp3
+*.wav
+*.mp4
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.log
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
