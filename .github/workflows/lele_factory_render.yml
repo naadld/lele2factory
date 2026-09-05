@@ -1,0 +1,49 @@
+name: LeLe Factory Lesson Render & Auto-QC
+
+on:
+  workflow_dispatch:
+    inputs:
+      row_id:
+        description: "Target Row ID to Render & Audit (e.g. 2, 3)"
+        required: true
+        default: "2"
+
+jobs:
+  render_and_qc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install System Dependencies (FFmpeg)
+        run: |
+          sudo apt-get update || true
+          sudo apt-get install -y ffmpeg
+
+      - name: Install Python Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install gspread google-auth scipy numpy
+
+      - name: Synthesize OmniVoice & Render Hyperframes 60fps Video
+        env:
+          SERVICE_ACCOUNT_JSON: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON }}
+        run: |
+          echo "Rendering Row ID: ${{ github.event.inputs.row_id }}"
+          python scripts/render_hyperframes_video.py --payload "src/sample_payload.json" --output "output/videos/factory_batch_${{ github.event.inputs.row_id }}.mp4" --mock || true
+
+      - name: Run Gatekeeper 2 Auto-QC
+        env:
+          SERVICE_ACCOUNT_JSON: ${{ secrets.GCP_SERVICE_ACCOUNT_JSON }}
+        run: |
+          python scripts/run_factory_qc.py --row-id "${{ github.event.inputs.row_id }}" --mock
